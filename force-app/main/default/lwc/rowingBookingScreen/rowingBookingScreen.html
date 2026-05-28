@@ -3,16 +3,16 @@
 
         <!-- Active Session Panel -->
         <template if:true={activeSession}>
-            <div class="slds-m-around_medium active-session-panel">
-                <div class="slds-box slds-theme_shade slds-m-bottom_medium">
-                    <h3 class="slds-text-heading_small slds-m-bottom_small">
-                        <lightning-icon icon-name="utility:check" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+            <div class="slds-var-m-around_medium active-session-panel">
+                <div class="slds-box slds-theme_shade slds-var-m-bottom_medium">
+                    <h3 class="slds-text-heading_small slds-var-m-bottom_small">
+                        <lightning-icon icon-name="utility:check" size="x-small" class="slds-var-m-right_x-small"></lightning-icon>
                         Active Session
                     </h3>
                     <p><strong>Boat:</strong> {activeSession.boatName}</p>
                     <p><strong>Session:</strong> {activeSession.sessionType}</p>
-                    <p class="slds-m-bottom_small"><strong>Status:</strong>
-                        <lightning-badge label={activeSession.status} class="slds-m-left_x-small"></lightning-badge>
+                    <p class="slds-var-m-bottom_small"><strong>Status:</strong>
+                        <lightning-badge label={activeSession.status} class="slds-var-m-left_x-small"></lightning-badge>
                     </p>
 
                     <!-- Start Session button (Booked state) -->
@@ -39,14 +39,14 @@
 
                     <!-- Issue Report Form -->
                     <template if:true={showIssueForm}>
-                        <div class="slds-box slds-m-top_medium issue-form">
-                            <h4 class="slds-text-heading_x-small slds-m-bottom_small">Report Issues (optional)</h4>
+                        <div class="slds-box slds-var-m-top_medium issue-form">
+                            <h4 class="slds-var-m-bottom_small">Report Issues (optional)</h4>
 
-                            <fieldset class="slds-form-element slds-m-bottom_small">
+                            <fieldset class="slds-form-element slds-var-m-bottom_small">
                                 <legend class="slds-form-element__label">Issue Types</legend>
                                 <div class="slds-form-element__control">
                                     <template for:each={issueTypeOptions} for:item="opt">
-                                        <div key={opt.value} class="slds-checkbox slds-m-bottom_xx-small">
+                                        <div key={opt.value} class="slds-checkbox slds-var-m-bottom_xx-small">
                                             <input
                                                 type="checkbox"
                                                 id={opt.value}
@@ -68,7 +68,7 @@
                                 value={issueDescription}
                                 onchange={handleIssueDescriptionChange}
                                 placeholder="Describe the issue..."
-                                class="slds-m-bottom_small">
+                                class="slds-var-m-bottom_small">
                             </lightning-textarea>
 
                             <lightning-combobox
@@ -76,7 +76,7 @@
                                 value={issueSeverity}
                                 options={severityOptions}
                                 onchange={handleSeverityChange}
-                                class="slds-m-bottom_medium">
+                                class="slds-var-m-bottom_medium">
                             </lightning-combobox>
 
                             <lightning-button
@@ -84,7 +84,7 @@
                                 variant="destructive"
                                 onclick={handleSubmitAndEndSession}
                                 disabled={isLoading}
-                                class="slds-m-right_small">
+                                class="slds-var-m-right_small">
                             </lightning-button>
                             <lightning-button
                                 label="Cancel"
@@ -99,17 +99,17 @@
         </template>
 
         <!-- Main Booking View -->
-        <div class="slds-m-around_medium">
+        <div class="slds-var-m-around_medium">
 
             <!-- Today's Date -->
-            <p class="slds-text-body_small slds-m-bottom_medium date-label">
-                <lightning-icon icon-name="utility:date_input" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+            <p class="slds-text-body_small slds-var-m-bottom_medium date-label">
+                <lightning-icon icon-name="utility:date_input" size="x-small" class="slds-var-m-right_x-small"></lightning-icon>
                 {todayFormatted}
             </p>
 
             <!-- Session Type Toggle -->
-            <div class="slds-m-bottom_medium">
-                <label class="slds-form-element__label slds-m-bottom_x-small">Session</label>
+            <div class="slds-var-m-bottom_medium">
+                <label class="slds-form-element__label slds-var-m-bottom_x-small">Session</label>
                 <lightning-button-group>
                     <lightning-button
                         label="Morning"
@@ -127,8 +127,8 @@
             </div>
 
             <!-- Capacity Filter -->
-            <div class="slds-m-bottom_medium">
-                <label class="slds-form-element__label slds-m-bottom_x-small">Capacity</label>
+            <div class="slds-var-m-bottom_medium">
+                <label class="slds-form-element__label slds-var-m-bottom_x-small">Capacity</label>
                 <div class="capacity-filters">
                     <template for:each={capacityOptions} for:item="cap">
                         <button
@@ -152,12 +152,12 @@
                 <template if:true={hasBoats}>
                     <div class="boat-list">
                         <template for:each={boats} for:item="boat">
-                            <div key={boat.Id} class="slds-box slds-m-bottom_small boat-row">
+                            <div key={boat.Id} class="slds-box slds-var-m-bottom_small boat-row">
                                 <div class="slds-grid slds-gutters slds-grid_vertical-align-center">
                                     <div class="slds-col">
-                                        <p class="slds-text-heading_x-small slds-m-bottom_xx-small">{boat.Name}</p>
+                                        <p class="slds-var-m-bottom_xx-small">{boat.Name}</p>
                                         <p class="slds-text-body_small">
-                                            <span class="slds-m-right_small">
+                                            <span class="slds-var-m-right_small">
                                                 <lightning-icon icon-name="utility:groups" size="xx-small"></lightning-icon>
                                                 Capacity: {boat.Capacity__c}
                                             </span>
@@ -185,9 +185,9 @@
 
                 <!-- Empty state -->
                 <template if:false={hasBoats}>
-                    <div class="slds-illustration slds-illustration_small slds-m-top_medium empty-state">
+                    <div class="slds-illustration slds-illustration_small slds-var-m-top_medium empty-state">
                         <div class="slds-text-longform slds-text-align_center">
-                            <lightning-icon icon-name="utility:boat" size="large" class="slds-m-bottom_small"></lightning-icon>
+                            <lightning-icon icon-name="utility:boat" size="large" class="slds-var-m-bottom_small"></lightning-icon>
                             <p class="slds-text-heading_medium">No boats available</p>
                             <p class="slds-text-body_regular">
                                 There are no boats available for this session.
@@ -219,26 +219,26 @@
                         </header>
 
                         <!-- Modal Body -->
-                        <div class="slds-modal__content slds-p-around_medium">
+                        <div class="slds-modal__content slds-var-p-around_medium">
 
                             <!-- Booking summary -->
-                            <div class="slds-box slds-theme_shade slds-m-bottom_medium">
+                            <div class="slds-box slds-theme_shade slds-var-m-bottom_medium">
                                 <p><strong>Session:</strong> {selectedSessionType}</p>
                                 <p><strong>Date:</strong> {todayFormatted}</p>
                                 <p><strong>Capacity:</strong> {selectedBoat.capacity}</p>
                             </div>
 
                             <!-- Crew Picker -->
-                            <div class="slds-m-bottom_medium">
+                            <div class="slds-var-m-bottom_medium">
                                 <label class="slds-form-element__label">
                                     Add Crew Members
-                                    <span class="slds-text-body_small slds-m-left_x-small">
+                                    <span class="slds-text-body_small slds-var-m-left_x-small">
                                         (max {maxCrewSize} additional)
                                     </span>
                                 </label>
 
                                 <!-- Crew search input -->
-                                <div class="slds-form-element slds-m-top_x-small slds-m-bottom_small">
+                                <div class="slds-form-element slds-var-m-top_x-small slds-var-m-bottom_small">
                                     <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_right">
                                         <lightning-input
                                             type="search"
@@ -274,7 +274,7 @@
 
                                 <!-- Selected crew pills -->
                                 <template if:true={hasCrew}>
-                                    <div class="slds-pill_container slds-m-top_x-small">
+                                    <div class="slds-pill_container slds-var-m-top_x-small">
                                         <ul class="slds-listbox slds-listbox_horizontal" role="listbox">
                                             <template for:each={crew} for:item="member">
                                                 <li key={member.id} class="slds-listbox-item">
@@ -295,7 +295,7 @@
                                 </template>
 
                                 <template if:true={isCrewFull}>
-                                    <p class="slds-text-color_success slds-m-top_x-small">
+                                    <p class="slds-text-color_success slds-var-m-top_x-small">
                                         <lightning-icon icon-name="utility:check" size="xx-small"></lightning-icon>
                                         Crew is full ({crew.length}/{maxCrewSize})
                                     </p>
@@ -310,7 +310,7 @@
                                 variant="neutral"
                                 onclick={handleCloseModal}
                                 disabled={isLoading}
-                                class="slds-m-right_small">
+                                class="slds-var-m-right_small">
                             </lightning-button>
                             <lightning-button
                                 label="Confirm Booking"
