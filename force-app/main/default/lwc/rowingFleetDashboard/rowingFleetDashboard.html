@@ -165,8 +165,8 @@
                                                         <h4 class="slds-text-title_caps slds-var-m-bottom_x-small">Full Crew</h4>
                                                         <template if:true={item.hasCrewNames}>
                                                             <ul class="slds-list_dotted">
-                                                                <template for:each={item.crewNames} for:item="name">
-                                                                    <li key={name}>{name}</li>
+                                                                <template for:each={item.enrichedCrew} for:item="member" for:key="member.key">
+                                                                    <li key={member.key}>{member.name}</li>
                                                                 </template>
                                                             </ul>
                                                         </template>
@@ -193,14 +193,15 @@
                                                     <div class="slds-col">
                                                         <h4 class="slds-text-title_caps slds-var-m-bottom_x-small">Open Issues</h4>
                                                         <template if:true={item.hasIssues}>
-                                                            <ul class="slds-list_dotted">
-                                                                <template for:each={item.session.Boat_Issues__r} for:item="issue">
-                                                                    <li key={issue.Id}>
-                                                                        <span class="slds-var-m-right_x-small">{issue.Issue_Type__c}</span>
-                                                                        <lightning-badge label={issue.Severity__c} class={issue.severityBadgeClass}></lightning-badge>
-                                                                    </li>
-                                                                </template>
-                                                            </ul>
+                                                            <template for:each={item.enrichedIssues} for:item="issue" for:key="issue.Id">
+                                                                <div key={issue.Id} class="slds-var-m-top_x-small">
+                                                                    <span class={issue.severityBadgeClass}>{issue.Severity__c}</span>
+                                                                    <span class="slds-var-m-left_x-small">{issue.Issue_Type__c}</span>
+                                                                    <template if:true={issue.Description__c}>
+                                                                        <span class="slds-var-m-left_x-small slds-text-color_weak"> — {issue.Description__c}</span>
+                                                                    </template>
+                                                                </div>
+                                                            </template>
                                                         </template>
                                                         <template if:false={item.hasIssues}>
                                                             <p class="slds-text-color_success">No open issues</p>

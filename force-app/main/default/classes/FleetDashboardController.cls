@@ -5,9 +5,10 @@ public with sharing class FleetDashboardController {
         @AuraEnabled public Rowing_Session__c session { get; set; }
         @AuraEnabled public Integer openIssueCount { get; set; }
         @AuraEnabled public List<String> crewNames { get; set; }
+        @AuraEnabled public List<Boat_Issue__c> openIssues { get; set; }
     }
 
-    @AuraEnabled(cacheable=true)
+    @AuraEnabled
     public static List<BoatStatus> getFleetStatus(Date selectedDate, String sessionType) {
         // 1. Query all boats
         List<Boat__c> boats = [
@@ -24,7 +25,7 @@ public with sharing class FleetDashboardController {
 
         // 2. Query sessions for the selected date and session type
         List<Rowing_Session__c> sessions;
-        if (sessionType == 'All' || String.isBlank(sessionType)) {
+        if (String.isBlank(sessionType)) {
             sessions = [
                 SELECT Id, Boat__c, Booked_By__c, Session_Type__c, Status__c, Start_Time__c, End_Time__c
                 FROM Rowing_Session__c
@@ -71,6 +72,7 @@ public with sharing class FleetDashboardController {
 
         // 4. Query open issues per boat
         Map<Id, Integer> boatOpenIssueCountMap = new Map<Id, Integer>();
+        Map<Id, List<Boat_Issue__c>> issuesByBoat = new Map<Id, List<Boat_Issue__c>>();
         if (!boatIds.isEmpty()) {
             List<AggregateResult> issueResults = [
                 SELECT Boat__c, COUNT(Id) issueCount
@@ -81,6 +83,18 @@ public with sharing class FleetDashboardController {
             ];
             for (AggregateResult ar : issueResults) {
                 boatOpenIssueCountMap.put((Id) ar.get('Boat__c'), (Integer) ar.get('issueCount'));
+            }
+
+            for (Boat_Issue__c issue : [
+                SELECT Id, Issue_Type__c, Description__c, Severity__c, Boat__c
+                FROM Boat_Issue__c
+                WHERE Boat__c IN :boatIds AND Resolved__c = false
+                ORDER BY Severity__c
+            ]) {
+                if (!issuesByBoat.containsKey(issue.Boat__c)) {
+                    issuesByBoat.put(issue.Boat__c, new List<Boat_Issue__c>());
+                }
+                issuesByBoat.get(issue.Boat__c).add(issue);
             }
         }
 
@@ -96,6 +110,8 @@ public with sharing class FleetDashboardController {
             bs.openIssueCount = boatOpenIssueCountMap.containsKey(boat.Id)
                 ? boatOpenIssueCountMap.get(boat.Id)
                 : 0;
+
+            bs.openIssues = issuesByBoat.containsKey(boat.Id) ? issuesByBoat.get(boat.Id) : new List<Boat_Issue__c>();
 
             if (linkedSession != null && sessionCrewNamesMap.containsKey(linkedSession.Id)) {
                 bs.crewNames = sessionCrewNamesMap.get(linkedSession.Id);

@@ -135,6 +135,15 @@ export default class RowingFleetDashboard extends LightningElement {
         let rowClass = 'boat-row';
         if (isExpanded) rowClass += ' row-expanded';
 
+        const enrichedIssues = (item.openIssues || []).map(issue => ({
+            ...issue,
+            severityBadgeClass: issue.Severity__c === 'Critical' ? 'slds-badge slds-theme_error' :
+                                 issue.Severity__c === 'Major' ? 'slds-badge slds-theme_warning' :
+                                 'slds-badge'
+        }));
+
+        const enrichedCrew = (crewNames).map((name, idx) => ({ key: idx + '_' + name, name }));
+
         return {
             ...item,
             isExpanded,
@@ -142,6 +151,8 @@ export default class RowingFleetDashboard extends LightningElement {
             statusBadgeClass,
             sessionSlot,
             crewDisplay,
+            enrichedIssues,
+            enrichedCrew,
             hasIssues: issueCount > 0,
             hasCrewNames: crewNames.length > 0,
             detailRowKey: boatId + '_detail',
