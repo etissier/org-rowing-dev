@@ -19,18 +19,34 @@ public with sharing class RowingSessionController {
             ];
         }
 
+        // Get boat IDs already booked for this date/session
+        Set<Id> bookedBoatIds = new Set<Id>();
+        if (sessionDate != null && sessionType != null) {
+            for (Rowing_Session__c s : [
+                SELECT Boat__c FROM Rowing_Session__c
+                WHERE Session_Date__c = :sessionDate
+                AND Session_Type__c = :sessionType
+                AND Status__c IN ('Booked', 'In Progress')
+            ]) {
+                bookedBoatIds.add(s.Boat__c);
+            }
+        }
+
         Rower__c currentRower = getCurrentRower();
         String rowerGroup = (currentRower != null && String.isNotBlank(currentRower.Group__c))
             ? currentRower.Group__c
             : null;
 
-        if (rowerGroup == null) {
-            return boats;
-        }
-
         List<Boat__c> filteredBoats = new List<Boat__c>();
         for (Boat__c boat : boats) {
-            if (String.isBlank(boat.Restricted_Groups__c)) {
+            // Exclude boats already booked for this date/session type
+            if (bookedBoatIds.contains(boat.Id)) {
+                continue;
+            }
+
+            if (rowerGroup == null) {
+                filteredBoats.add(boat);
+            } else if (String.isBlank(boat.Restricted_Groups__c)) {
                 filteredBoats.add(boat);
             } else {
                 List<String> restrictedGroups = boat.Restricted_Groups__c.split(';');
@@ -57,6 +73,11 @@ public with sharing class RowingSessionController {
 
             if (currentRower == null) {
                 throw new AuraHandledException('No Rower record found for the current user. Please contact your administrator.');
+            }
+
+            Boat__c boat = [SELECT Id, Status__c FROM Boat__c WHERE Id = :boatId FOR UPDATE];
+            if (boat.Status__c != 'Available') {
+                throw new AuraHandledException('This boat is no longer available. Please select another boat.');
             }
 
             Rowing_Session__c session = new Rowing_Session__c(
@@ -98,6 +119,7 @@ public with sharing class RowingSessionController {
 
     @AuraEnabled
     public static void startSession(Id sessionId) {
+        Savepoint sp = Database.setSavepoint();
         try {
             Rowing_Session__c session = [
                 SELECT Id, Boat__c
@@ -113,12 +135,14 @@ public with sharing class RowingSessionController {
             Boat__c boat = new Boat__c(Id = session.Boat__c, Status__c = 'In Use');
             update boat;
         } catch (Exception e) {
+            Database.rollback(sp);
             throw new AuraHandledException(e.getMessage());
         }
     }
 
     @AuraEnabled
     public static void endSession(Id sessionId) {
+        Savepoint sp = Database.setSavepoint();
         try {
             Rowing_Session__c session = [
                 SELECT Id, Boat__c
@@ -134,6 +158,7 @@ public with sharing class RowingSessionController {
             Boat__c boat = new Boat__c(Id = session.Boat__c, Status__c = 'Available');
             update boat;
         } catch (Exception e) {
+            Database.rollback(sp);
             throw new AuraHandledException(e.getMessage());
         }
     }

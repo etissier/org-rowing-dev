@@ -2,6 +2,7 @@ public with sharing class BoatIssueController {
 
     @AuraEnabled
     public static void reportIssue(Id sessionId, Id boatId, String issueTypes, String description, String severity) {
+        Savepoint sp = Database.setSavepoint();
         try {
             Rower__c currentRower = RowingSessionController.getCurrentRower();
 
@@ -21,6 +22,7 @@ public with sharing class BoatIssueController {
                 update boat;
             }
         } catch (Exception e) {
+            Database.rollback(sp);
             throw new AuraHandledException(e.getMessage());
         }
     }

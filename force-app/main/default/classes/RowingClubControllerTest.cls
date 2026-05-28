@@ -32,7 +32,7 @@ private class RowingClubControllerTest {
 
     @isTest
     static void testGetAvailableBoats() {
-        insertRowerForCurrentUser('Novice');
+        insertRowerForCurrentUser('Leisure');
         Boat__c availableBoat = insertBoat('Boat Alpha', 'Available', 4);
         insertBoat('Boat Beta', 'In Use', 4);   // should be excluded by status
 
@@ -53,7 +53,7 @@ private class RowingClubControllerTest {
 
     @isTest
     static void testGetAvailableBoatsWithCapacityFilter() {
-        insertRowerForCurrentUser('Senior');
+        insertRowerForCurrentUser('Competition Junior');
         insertBoat('Boat 4 Seat', 'Available', 4);
         insertBoat('Boat 8 Seat', 'Available', 8);
 
@@ -68,13 +68,13 @@ private class RowingClubControllerTest {
 
     @isTest
     static void testGetAvailableBoatsRestrictedGroupExclusion() {
-        insertRowerForCurrentUser('Junior');
+        insertRowerForCurrentUser('Master');
         Boat__c restrictedBoat = new Boat__c(
             Name = 'Restricted Boat',
             Status__c = 'Available',
             Capacity__c = 2,
             Number_of_Oars__c = 4,
-            Restricted_Groups__c = 'Junior;Masters'
+            Restricted_Groups__c = 'Master;Leisure'
         );
         insert restrictedBoat;
 
@@ -93,13 +93,13 @@ private class RowingClubControllerTest {
 
     @isTest
     static void testCreateSession() {
-        Rower__c currentRower = insertRowerForCurrentUser('Senior');
+        Rower__c currentRower = insertRowerForCurrentUser('Leisure');
         Boat__c boat = insertBoat('Scull One', 'Available', 1);
 
         // Create a second rower as crew
         Rower__c crewRower = new Rower__c(
             License_Number__c = 'LIC-CREW-001',
-            Group__c = 'Senior'
+            Group__c = 'Leisure'
         );
         insert crewRower;
 
@@ -122,7 +122,7 @@ private class RowingClubControllerTest {
 
     @isTest
     static void testCreateSessionBookingRowerNotDuplicated() {
-        Rower__c currentRower = insertRowerForCurrentUser('Masters');
+        Rower__c currentRower = insertRowerForCurrentUser('Master');
         Boat__c boat = insertBoat('Double Scull', 'Available', 2);
 
         // Pass the current rower's own Id in crewRowerIds — should not be duplicated
@@ -140,7 +140,7 @@ private class RowingClubControllerTest {
 
     @isTest
     static void testStartAndEndSession() {
-        insertRowerForCurrentUser('Senior');
+        insertRowerForCurrentUser('Leisure');
         Boat__c boat = insertBoat('Eight', 'Available', 8);
 
         Rowing_Session__c session = new Rowing_Session__c(
@@ -181,7 +181,7 @@ private class RowingClubControllerTest {
 
     @isTest
     static void testReportIssue() {
-        insertRowerForCurrentUser('Senior');
+        insertRowerForCurrentUser('Leisure');
         Boat__c boat = insertBoat('Coxed Four', 'Available', 4);
 
         Rowing_Session__c session = new Rowing_Session__c(
@@ -193,7 +193,7 @@ private class RowingClubControllerTest {
         insert session;
 
         Test.startTest();
-        BoatIssueController.reportIssue(session.Id, boat.Id, 'Damage', 'Hull crack near stern', 'Critical');
+        BoatIssueController.reportIssue(session.Id, boat.Id, 'Hull Damage', 'Hull crack near stern', 'Critical');
         Test.stopTest();
 
         List<Boat_Issue__c> issues = [SELECT Id, Severity__c, Resolved__c, Description__c FROM Boat_Issue__c WHERE Boat__c = :boat.Id];
@@ -208,7 +208,7 @@ private class RowingClubControllerTest {
 
     @isTest
     static void testReportIssueNonCritical() {
-        insertRowerForCurrentUser('Novice');
+        insertRowerForCurrentUser('Leisure');
         Boat__c boat = insertBoat('Pair', 'Available', 2);
 
         Rowing_Session__c session = new Rowing_Session__c(
@@ -220,7 +220,7 @@ private class RowingClubControllerTest {
         insert session;
 
         Test.startTest();
-        BoatIssueController.reportIssue(session.Id, boat.Id, 'Equipment', 'Missing foot stretcher nut', 'Low');
+        BoatIssueController.reportIssue(session.Id, boat.Id, 'Other', 'Missing foot stretcher nut', 'Low');
         Test.stopTest();
 
         Boat__c updatedBoat = [SELECT Status__c FROM Boat__c WHERE Id = :boat.Id];
@@ -236,7 +236,7 @@ private class RowingClubControllerTest {
 
     @isTest
     static void testGetCurrentRower() {
-        Rower__c rower = insertRowerForCurrentUser('Junior');
+        Rower__c rower = insertRowerForCurrentUser('Competition Junior');
 
         Test.startTest();
         Rower__c result = RowingSessionController.getCurrentRower();
@@ -244,7 +244,7 @@ private class RowingClubControllerTest {
 
         System.assertNotEquals(null, result, 'Current rower should be found');
         System.assertEquals(rower.Id, result.Id);
-        System.assertEquals('Junior', result.Group__c);
+        System.assertEquals('Competition Junior', result.Group__c);
     }
 
     @isTest
@@ -264,7 +264,7 @@ private class RowingClubControllerTest {
 
     @isTest
     static void testGetFleetStatus() {
-        insertRowerForCurrentUser('Senior');
+        insertRowerForCurrentUser('Leisure');
         Boat__c boat1 = insertBoat('Fleet Boat 1', 'Available', 4);
         Boat__c boat2 = insertBoat('Fleet Boat 2', 'In Use', 8);
 
@@ -304,7 +304,7 @@ private class RowingClubControllerTest {
 
     @isTest
     static void testGetFleetStatusWithSessionTypeFilter() {
-        insertRowerForCurrentUser('Masters');
+        insertRowerForCurrentUser('Master');
         Boat__c boat = insertBoat('Race Shell', 'Available', 1);
         Date targetDate = Date.today();
 
