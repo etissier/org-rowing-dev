@@ -106,14 +106,14 @@ private class RowingClubControllerTest {
         Date sessionDate = Date.today().addDays(1);
 
         Test.startTest();
-        Id sessionId = RowingSessionController.createSession(boat.Id, 'Training', sessionDate, new List<Id>{ crewRower.Id });
+        Id sessionId = RowingSessionController.createSession(boat.Id, 'Morning', sessionDate, new List<Id>{ crewRower.Id });
         Test.stopTest();
 
         System.assertNotEquals(null, sessionId, 'Session Id should be returned');
 
         Rowing_Session__c session = [SELECT Id, Status__c, Booked_By__c, Session_Type__c FROM Rowing_Session__c WHERE Id = :sessionId];
         System.assertEquals('Booked', session.Status__c);
-        System.assertEquals('Training', session.Session_Type__c);
+        System.assertEquals('Morning', session.Session_Type__c);
         System.assertEquals(currentRower.Id, session.Booked_By__c);
 
         List<Session_Member__c> members = [SELECT Id, Rower__c FROM Session_Member__c WHERE Session__c = :sessionId];
@@ -127,7 +127,7 @@ private class RowingClubControllerTest {
 
         // Pass the current rower's own Id in crewRowerIds — should not be duplicated
         Test.startTest();
-        Id sessionId = RowingSessionController.createSession(boat.Id, 'Racing', Date.today(), new List<Id>{ currentRower.Id });
+        Id sessionId = RowingSessionController.createSession(boat.Id, 'Afternoon', Date.today(), new List<Id>{ currentRower.Id });
         Test.stopTest();
 
         List<Session_Member__c> members = [SELECT Id FROM Session_Member__c WHERE Session__c = :sessionId];
@@ -145,7 +145,7 @@ private class RowingClubControllerTest {
 
         Rowing_Session__c session = new Rowing_Session__c(
             Boat__c = boat.Id,
-            Session_Type__c = 'Training',
+            Session_Type__c = 'Morning',
             Session_Date__c = Date.today(),
             Status__c = 'Booked'
         );
@@ -186,7 +186,7 @@ private class RowingClubControllerTest {
 
         Rowing_Session__c session = new Rowing_Session__c(
             Boat__c = boat.Id,
-            Session_Type__c = 'Training',
+            Session_Type__c = 'Morning',
             Session_Date__c = Date.today(),
             Status__c = 'In Progress'
         );
@@ -213,7 +213,7 @@ private class RowingClubControllerTest {
 
         Rowing_Session__c session = new Rowing_Session__c(
             Boat__c = boat.Id,
-            Session_Type__c = 'Training',
+            Session_Type__c = 'Morning',
             Session_Date__c = Date.today(),
             Status__c = 'In Progress'
         );
@@ -272,7 +272,7 @@ private class RowingClubControllerTest {
 
         Rowing_Session__c session = new Rowing_Session__c(
             Boat__c = boat2.Id,
-            Session_Type__c = 'Training',
+            Session_Type__c = 'Morning',
             Session_Date__c = targetDate,
             Status__c = 'In Progress'
         );
@@ -310,30 +310,30 @@ private class RowingClubControllerTest {
 
         Rowing_Session__c racingSession = new Rowing_Session__c(
             Boat__c = boat.Id,
-            Session_Type__c = 'Racing',
+            Session_Type__c = 'Afternoon',
             Session_Date__c = targetDate,
             Status__c = 'Booked'
         );
         insert racingSession;
 
         Test.startTest();
-        List<FleetDashboardController.BoatStatus> racingResults = FleetDashboardController.getFleetStatus(targetDate, 'Racing');
-        List<FleetDashboardController.BoatStatus> trainingResults = FleetDashboardController.getFleetStatus(targetDate, 'Training');
+        List<FleetDashboardController.BoatStatus> racingResults = FleetDashboardController.getFleetStatus(targetDate, 'Afternoon');
+        List<FleetDashboardController.BoatStatus> trainingResults = FleetDashboardController.getFleetStatus(targetDate, 'Morning');
         Test.stopTest();
 
-        // The racing session should be associated with the boat in racingResults
+        // The afternoon session should be associated with the boat in racingResults
         Boolean sessionFoundInRacing = false;
         for (FleetDashboardController.BoatStatus bs : racingResults) {
             if (bs.boat.Id == boat.Id && bs.session != null) {
                 sessionFoundInRacing = true;
             }
         }
-        System.assert(sessionFoundInRacing, 'Racing session should be found when filtering by Racing');
+        System.assert(sessionFoundInRacing, 'Afternoon session should be found when filtering by Afternoon');
 
-        // When filtering by Training, no session should be linked to this boat
+        // When filtering by Morning, no session should be linked to this boat
         for (FleetDashboardController.BoatStatus bs : trainingResults) {
             if (bs.boat.Id == boat.Id) {
-                System.assertEquals(null, bs.session, 'No training session should be linked when filtering by Training');
+                System.assertEquals(null, bs.session, 'No morning session should be linked when filtering by Morning');
             }
         }
     }
