@@ -5,6 +5,6 @@
     <referenceTo>Boat__c</referenceTo>
     <relationshipLabel>Boat Issues</relationshipLabel>
     <relationshipName>Boat_Issues</relationshipName>
-    <required>false</required>
+    <required>true</required>
     <type>Lookup</type>
 </CustomField>

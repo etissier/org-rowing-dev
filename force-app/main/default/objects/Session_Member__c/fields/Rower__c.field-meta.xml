@@ -5,6 +5,6 @@
     <referenceTo>Rower__c</referenceTo>
     <relationshipLabel>Session Members</relationshipLabel>
     <relationshipName>Session_Members</relationshipName>
-    <required>false</required>
+    <required>true</required>
     <type>Lookup</type>
 </CustomField>
