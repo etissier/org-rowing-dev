@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <defaultLandingTab>standard-home</defaultLandingTab>
+    <description>Rowing club boat and session management</description>
+    <formFactors>Large</formFactors>
+    <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
+    <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
+    <label>Rowing Club</label>
+    <navType>Standard</navType>
+    <tabs>standard-home</tabs>
+    <tabs>Boat__c</tabs>
+    <tabs>Rowing_Session__c</tabs>
+    <uiType>Lightning</uiType>
+    <utilityBar/>
+</CustomApplication>

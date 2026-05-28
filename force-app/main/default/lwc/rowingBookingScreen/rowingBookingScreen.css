@@ -1,0 +1,106 @@
+/* ─── Date label ─────────────────────────────────────────────────────────── */
+.date-label {
+    color: var(--slds-g-color-neutral-base-50, #747474);
+    font-style: italic;
+}
+
+/* ─── Capacity filter buttons ────────────────────────────────────────────── */
+.capacity-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.capacity-btn {
+    padding: 0.25rem 0.75rem;
+    border: 1px solid var(--slds-g-color-brand-base-40, #0176d3);
+    border-radius: 1rem;
+    background: #fff;
+    color: var(--slds-g-color-brand-base-40, #0176d3);
+    font-size: 0.8125rem;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.capacity-btn:hover {
+    background: var(--slds-g-color-brand-base-95, #eef4ff);
+}
+
+.capacity-btn_active {
+    background: var(--slds-g-color-brand-base-40, #0176d3);
+    color: #fff;
+}
+
+/* ─── Boat list ──────────────────────────────────────────────────────────── */
+.boat-list {
+    margin-top: 0.5rem;
+}
+
+.boat-row {
+    transition: box-shadow 0.15s;
+}
+
+.boat-row:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* ─── Empty state ────────────────────────────────────────────────────────── */
+.empty-state {
+    padding: 2rem 0;
+}
+
+/* ─── Active session panel ───────────────────────────────────────────────── */
+.active-session-panel {
+    border-left: 4px solid var(--slds-g-color-success-base-40, #2e844a);
+    padding-left: 0;
+}
+
+/* ─── Issue report form ──────────────────────────────────────────────────── */
+.issue-form {
+    border-left: 4px solid var(--slds-g-color-error-base-40, #ba0517);
+}
+
+/* ─── Booking modal overlay ──────────────────────────────────────────────── */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9000;
+}
+
+.modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.modal-container .slds-modal {
+    pointer-events: all;
+}
+
+/* ─── Crew search results dropdown ───────────────────────────────────────── */
+.crew-search-results {
+    position: relative;
+    z-index: 100;
+    border: 1px solid var(--slds-g-color-neutral-base-80, #c9c9c9);
+    border-radius: 0.25rem;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.crew-search-results .slds-listbox__option:hover {
+    background: var(--slds-g-color-brand-base-95, #eef4ff);
+    cursor: pointer;
+}

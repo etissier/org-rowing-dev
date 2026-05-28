@@ -1,0 +1,124 @@
+/* ── Date navigation ────────────────────────────────────────────────────── */
+
+.date-display {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--slds-g-color-neutral-base-10, #181818);
+}
+
+/* ── Summary bar ────────────────────────────────────────────────────────── */
+
+.summary-bar {
+    gap: 0.5rem;
+}
+
+.summary-tile {
+    text-align: center;
+    padding: 0.75rem 0.5rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--slds-g-color-border-base-1, #dddbda);
+    background: var(--slds-g-color-neutral-base-100, #ffffff);
+}
+
+.summary-tile p {
+    margin: 0;
+    line-height: 1.4;
+}
+
+.summary-tile_available {
+    border-left: 4px solid #2e844a;
+}
+
+.summary-tile_inuse {
+    border-left: 4px solid #0176d3;
+}
+
+.summary-tile_repair {
+    border-left: 4px solid #dd7a01;
+}
+
+.summary-tile_issues {
+    border-left: 4px solid #ba0517;
+}
+
+/* ── Table ──────────────────────────────────────────────────────────────── */
+
+.table-container {
+    overflow-x: auto;
+}
+
+.boat-row {
+    cursor: pointer;
+    transition: background-color 0.1s;
+}
+
+.boat-row:hover {
+    background-color: var(--slds-g-color-neutral-base-95, #f3f2f2);
+}
+
+.row-expanded {
+    background-color: var(--slds-g-color-neutral-base-95, #f3f2f2);
+}
+
+.col-capacity  { width: 6rem; }
+.col-status    { width: 9rem; }
+.col-session   { width: 8rem; }
+.col-crew      { width: 10rem; }
+.col-issues    { width: 5rem; text-align: center; }
+.col-actions   { width: 9rem; }
+
+/* ── Status badges ──────────────────────────────────────────────────────── */
+
+.status-badge {
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.badge-available {
+    --slds-c-badge-color-background: #cdefc4;
+    --slds-c-badge-text-color: #1a5c2a;
+    color: #1a5c2a;
+    background-color: #cdefc4;
+}
+
+.badge-inuse {
+    --slds-c-badge-color-background: #cfe9fe;
+    --slds-c-badge-text-color: #032d60;
+    color: #032d60;
+    background-color: #cfe9fe;
+}
+
+.badge-repair {
+    --slds-c-badge-color-background: #fde8c8;
+    --slds-c-badge-text-color: #5f3e00;
+    color: #5f3e00;
+    background-color: #fde8c8;
+}
+
+.badge-issue-red {
+    --slds-c-badge-color-background: #feded3;
+    --slds-c-badge-text-color: #8e0000;
+    color: #8e0000;
+    background-color: #feded3;
+    font-weight: 700;
+}
+
+/* ── Expanded detail row ────────────────────────────────────────────────── */
+
+.detail-row {
+    background-color: var(--slds-g-color-neutral-base-98, #fafaf9);
+}
+
+.detail-cell {
+    border-top: 1px solid var(--slds-g-color-border-base-1, #dddbda);
+}
+
+.detail-cell h4 {
+    color: var(--slds-g-color-neutral-base-30, #706e6b);
+}
+
+/* ── Empty state ────────────────────────────────────────────────────────── */
+
+.empty-state {
+    padding: 2rem 0;
+}

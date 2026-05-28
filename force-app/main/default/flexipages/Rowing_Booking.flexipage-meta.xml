@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Rower booking screen for managing boat bookings</description>
+    <masterLabel>Rowing Booking</masterLabel>
+    <pageTemplate>AppPage_Default</pageTemplate>
+    <type>AppPage</type>
+    <flexiPageRegions>
+        <name>main</name>
+        <type>Region</type>
+    </flexiPageRegions>
+    <componentInstances>
+        <componentName>c:rowingBookingScreen</componentName>
+        <componentInstanceProperties/>
+        <regionName>main</regionName>
+    </componentInstances>
+</FlexiPage>
