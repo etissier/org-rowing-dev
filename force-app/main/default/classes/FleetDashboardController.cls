@@ -43,8 +43,12 @@ public with sharing class FleetDashboardController {
         Map<Id, Rowing_Session__c> boatToSessionMap = new Map<Id, Rowing_Session__c>();
         for (Rowing_Session__c s : sessions) {
             sessionIds.add(s.Id);
-            // Map most recent session per boat (last one wins — acceptable for dashboard)
-            boatToSessionMap.put(s.Boat__c, s);
+            // Prefer an 'In Progress' session over any other status for the same boat
+            if (!boatToSessionMap.containsKey(s.Boat__c)) {
+                boatToSessionMap.put(s.Boat__c, s);
+            } else if (s.Status__c == 'In Progress') {
+                boatToSessionMap.put(s.Boat__c, s);
+            }
         }
 
         // 3. Query session members for crew names

@@ -35,8 +35,8 @@ public with sharing class RowingSessionController {
             } else {
                 List<String> restrictedGroups = boat.Restricted_Groups__c.split(';');
                 Boolean isRestricted = false;
-                for (String group : restrictedGroups) {
-                    if (group.trim().equalsIgnoreCase(rowerGroup)) {
+                for (String groupValue : restrictedGroups) {
+                    if (groupValue.trim().equalsIgnoreCase(rowerGroup)) {
                         isRestricted = true;
                         break;
                     }
@@ -54,6 +54,10 @@ public with sharing class RowingSessionController {
     public static Id createSession(Id boatId, String sessionType, Date sessionDate, List<Id> crewRowerIds) {
         try {
             Rower__c currentRower = getCurrentRower();
+
+            if (currentRower == null) {
+                throw new AuraHandledException('No Rower record found for the current user. Please contact your administrator.');
+            }
 
             Rowing_Session__c session = new Rowing_Session__c(
                 Boat__c = boatId,
