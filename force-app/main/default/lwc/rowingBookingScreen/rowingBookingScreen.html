@@ -1,0 +1,329 @@
+<template>
+    <lightning-card title="Book a Boat" icon-name="utility:rowing">
+
+        <!-- Active Session Panel -->
+        <template if:true={activeSession}>
+            <div class="slds-m-around_medium active-session-panel">
+                <div class="slds-box slds-theme_shade slds-m-bottom_medium">
+                    <h3 class="slds-text-heading_small slds-m-bottom_small">
+                        <lightning-icon icon-name="utility:check" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                        Active Session
+                    </h3>
+                    <p><strong>Boat:</strong> {activeSession.boatName}</p>
+                    <p><strong>Session:</strong> {activeSession.sessionType}</p>
+                    <p class="slds-m-bottom_small"><strong>Status:</strong>
+                        <lightning-badge label={activeSession.status} class="slds-m-left_x-small"></lightning-badge>
+                    </p>
+
+                    <!-- Start Session button (Booked state) -->
+                    <template if:true={isSessionBooked}>
+                        <lightning-button
+                            label="Start Session"
+                            variant="brand"
+                            onclick={handleStartSession}
+                            disabled={isLoading}>
+                        </lightning-button>
+                    </template>
+
+                    <!-- End Session button (In Progress state) -->
+                    <template if:true={isSessionInProgress}>
+                        <template if:false={showIssueForm}>
+                            <lightning-button
+                                label="End Session"
+                                variant="destructive"
+                                onclick={handleShowIssueForm}
+                                disabled={isLoading}>
+                            </lightning-button>
+                        </template>
+                    </template>
+
+                    <!-- Issue Report Form -->
+                    <template if:true={showIssueForm}>
+                        <div class="slds-box slds-m-top_medium issue-form">
+                            <h4 class="slds-text-heading_x-small slds-m-bottom_small">Report Issues (optional)</h4>
+
+                            <fieldset class="slds-form-element slds-m-bottom_small">
+                                <legend class="slds-form-element__label">Issue Types</legend>
+                                <div class="slds-form-element__control">
+                                    <template for:each={issueTypeOptions} for:item="opt">
+                                        <div key={opt.value} class="slds-checkbox slds-m-bottom_xx-small">
+                                            <input
+                                                type="checkbox"
+                                                id={opt.value}
+                                                name="issueTypes"
+                                                value={opt.value}
+                                                onchange={handleIssueTypeChange}
+                                            />
+                                            <label class="slds-checkbox__label" for={opt.value}>
+                                                <span class="slds-checkbox_faux"></span>
+                                                <span class="slds-form-element__label">{opt.label}</span>
+                                            </label>
+                                        </div>
+                                    </template>
+                                </div>
+                            </fieldset>
+
+                            <lightning-textarea
+                                label="Description"
+                                value={issueDescription}
+                                onchange={handleIssueDescriptionChange}
+                                placeholder="Describe the issue..."
+                                class="slds-m-bottom_small">
+                            </lightning-textarea>
+
+                            <lightning-combobox
+                                label="Severity"
+                                value={issueSeverity}
+                                options={severityOptions}
+                                onchange={handleSeverityChange}
+                                class="slds-m-bottom_medium">
+                            </lightning-combobox>
+
+                            <lightning-button
+                                label="Submit &amp; End Session"
+                                variant="destructive"
+                                onclick={handleSubmitAndEndSession}
+                                disabled={isLoading}
+                                class="slds-m-right_small">
+                            </lightning-button>
+                            <lightning-button
+                                label="Cancel"
+                                variant="neutral"
+                                onclick={handleCancelIssueForm}
+                                disabled={isLoading}>
+                            </lightning-button>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </template>
+
+        <!-- Main Booking View -->
+        <div class="slds-m-around_medium">
+
+            <!-- Today's Date -->
+            <p class="slds-text-body_small slds-m-bottom_medium date-label">
+                <lightning-icon icon-name="utility:date_input" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                {todayFormatted}
+            </p>
+
+            <!-- Session Type Toggle -->
+            <div class="slds-m-bottom_medium">
+                <label class="slds-form-element__label slds-m-bottom_x-small">Session</label>
+                <lightning-button-group>
+                    <lightning-button
+                        label="Morning"
+                        variant={morningVariant}
+                        onclick={handleSessionTypeChange}
+                        data-value="Morning">
+                    </lightning-button>
+                    <lightning-button
+                        label="Afternoon"
+                        variant={afternoonVariant}
+                        onclick={handleSessionTypeChange}
+                        data-value="Afternoon">
+                    </lightning-button>
+                </lightning-button-group>
+            </div>
+
+            <!-- Capacity Filter -->
+            <div class="slds-m-bottom_medium">
+                <label class="slds-form-element__label slds-m-bottom_x-small">Capacity</label>
+                <div class="capacity-filters">
+                    <template for:each={capacityOptions} for:item="cap">
+                        <button
+                            key={cap.value}
+                            class={cap.cssClass}
+                            onclick={handleCapacityChange}
+                            data-value={cap.value}>
+                            {cap.label}
+                        </button>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Loading spinner -->
+            <template if:true={isLoading}>
+                <lightning-spinner alternative-text="Loading boats..." size="small"></lightning-spinner>
+            </template>
+
+            <!-- Boat List -->
+            <template if:false={isLoading}>
+                <template if:true={hasBoats}>
+                    <div class="boat-list">
+                        <template for:each={boats} for:item="boat">
+                            <div key={boat.Id} class="slds-box slds-m-bottom_small boat-row">
+                                <div class="slds-grid slds-gutters slds-grid_vertical-align-center">
+                                    <div class="slds-col">
+                                        <p class="slds-text-heading_x-small slds-m-bottom_xx-small">{boat.Name}</p>
+                                        <p class="slds-text-body_small">
+                                            <span class="slds-m-right_small">
+                                                <lightning-icon icon-name="utility:groups" size="xx-small"></lightning-icon>
+                                                Capacity: {boat.Capacity__c}
+                                            </span>
+                                            <span>
+                                                <lightning-icon icon-name="utility:settings" size="xx-small"></lightning-icon>
+                                                Oars: {boat.Number_of_Oars__c}
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <div class="slds-col slds-no-flex">
+                                        <lightning-button
+                                            label="Book"
+                                            variant="brand"
+                                            onclick={handleBookClick}
+                                            data-boat-id={boat.Id}
+                                            data-boat-name={boat.Name}
+                                            data-boat-capacity={boat.Capacity__c}>
+                                        </lightning-button>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- Empty state -->
+                <template if:false={hasBoats}>
+                    <div class="slds-illustration slds-illustration_small slds-m-top_medium empty-state">
+                        <div class="slds-text-longform slds-text-align_center">
+                            <lightning-icon icon-name="utility:boat" size="large" class="slds-m-bottom_small"></lightning-icon>
+                            <p class="slds-text-heading_medium">No boats available</p>
+                            <p class="slds-text-body_regular">
+                                There are no boats available for this session.
+                                Try a different session type or capacity filter.
+                            </p>
+                        </div>
+                    </div>
+                </template>
+            </template>
+        </div>
+
+        <!-- Booking Modal -->
+        <template if:true={showModal}>
+            <div class="modal-backdrop" onclick={handleModalBackdropClick}></div>
+            <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
+                <div class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container">
+
+                        <!-- Modal Header -->
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                                    onclick={handleCloseModal}
+                                    title="Close">
+                                <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                            </button>
+                            <h2 id="modal-heading" class="slds-modal__title">
+                                Book: {selectedBoat.name}
+                            </h2>
+                        </header>
+
+                        <!-- Modal Body -->
+                        <div class="slds-modal__content slds-p-around_medium">
+
+                            <!-- Booking summary -->
+                            <div class="slds-box slds-theme_shade slds-m-bottom_medium">
+                                <p><strong>Session:</strong> {selectedSessionType}</p>
+                                <p><strong>Date:</strong> {todayFormatted}</p>
+                                <p><strong>Capacity:</strong> {selectedBoat.capacity}</p>
+                            </div>
+
+                            <!-- Crew Picker -->
+                            <div class="slds-m-bottom_medium">
+                                <label class="slds-form-element__label">
+                                    Add Crew Members
+                                    <span class="slds-text-body_small slds-m-left_x-small">
+                                        (max {maxCrewSize} additional)
+                                    </span>
+                                </label>
+
+                                <!-- Crew search input -->
+                                <div class="slds-form-element slds-m-top_x-small slds-m-bottom_small">
+                                    <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_right">
+                                        <lightning-input
+                                            type="search"
+                                            label="Search rowers"
+                                            variant="label-hidden"
+                                            placeholder="Type a name to search..."
+                                            value={crewSearchTerm}
+                                            onchange={handleCrewSearch}
+                                            disabled={isCrewFull}>
+                                        </lightning-input>
+                                    </div>
+                                </div>
+
+                                <!-- Search results dropdown -->
+                                <template if:true={showCrewSearchResults}>
+                                    <div class="crew-search-results slds-dropdown slds-dropdown_length-5 slds-dropdown_fluid">
+                                        <ul class="slds-listbox slds-listbox_vertical" role="listbox">
+                                            <template for:each={filteredRowers} for:item="rower">
+                                                <li key={rower.id}
+                                                    class="slds-media slds-listbox__item slds-listbox__option slds-listbox__option_plain"
+                                                    role="option"
+                                                    onclick={handleSelectCrewMember}
+                                                    data-rower-id={rower.id}
+                                                    data-rower-name={rower.name}>
+                                                    <span class="slds-media__body">
+                                                        <span class="slds-truncate">{rower.name}</span>
+                                                    </span>
+                                                </li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                </template>
+
+                                <!-- Selected crew pills -->
+                                <template if:true={hasCrew}>
+                                    <div class="slds-pill_container slds-m-top_x-small">
+                                        <ul class="slds-listbox slds-listbox_horizontal" role="listbox">
+                                            <template for:each={crew} for:item="member">
+                                                <li key={member.id} class="slds-listbox-item">
+                                                    <span class="slds-pill">
+                                                        <span class="slds-pill__label">{member.name}</span>
+                                                        <button
+                                                            class="slds-button slds-button_icon slds-button_icon slds-pill__remove"
+                                                            onclick={handleRemoveCrewMember}
+                                                            data-rower-id={member.id}
+                                                            title="Remove">
+                                                            <lightning-icon icon-name="utility:close" size="xx-small"></lightning-icon>
+                                                        </button>
+                                                    </span>
+                                                </li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                </template>
+
+                                <template if:true={isCrewFull}>
+                                    <p class="slds-text-color_success slds-m-top_x-small">
+                                        <lightning-icon icon-name="utility:check" size="xx-small"></lightning-icon>
+                                        Crew is full ({crew.length}/{maxCrewSize})
+                                    </p>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Modal Footer -->
+                        <footer class="slds-modal__footer">
+                            <lightning-button
+                                label="Cancel"
+                                variant="neutral"
+                                onclick={handleCloseModal}
+                                disabled={isLoading}
+                                class="slds-m-right_small">
+                            </lightning-button>
+                            <lightning-button
+                                label="Confirm Booking"
+                                variant="brand"
+                                onclick={handleConfirmBooking}
+                                disabled={isLoading}>
+                            </lightning-button>
+                        </footer>
+
+                    </div>
+                </div>
+            </div>
+        </template>
+
+    </lightning-card>
+</template>
