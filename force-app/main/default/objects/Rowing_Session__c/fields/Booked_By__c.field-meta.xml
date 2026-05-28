@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Booked_By__c</fullName>
+    <label>Booked By</label>
+    <referenceTo>Rower__c</referenceTo>
+    <relationshipLabel>Rowing Sessions</relationshipLabel>
+    <relationshipName>Rowing_Sessions_Booked</relationshipName>
+    <required>false</required>
+    <type>Lookup</type>
+</CustomField>
