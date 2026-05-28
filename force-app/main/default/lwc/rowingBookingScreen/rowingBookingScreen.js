@@ -1,35 +1,18 @@
 import { LightningElement, track, wire } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getAvailableBoats from '@salesforce/apex/RowingSessionController.getAvailableBoats';
+import getRowers from '@salesforce/apex/RowingSessionController.getRowers';
 import createSession from '@salesforce/apex/RowingSessionController.createSession';
 import startSession from '@salesforce/apex/RowingSessionController.startSession';
 import endSession from '@salesforce/apex/RowingSessionController.endSession';
 import reportIssue from '@salesforce/apex/BoatIssueController.reportIssue';
-
-// NOTE: A getRowers() @AuraEnabled(cacheable=true) method returning List<Rower__c> would be
-// needed for real crew lookup. For demo purposes, mock crew data is used below.
-// Add to RowingSessionController:
-//   @AuraEnabled(cacheable=true)
-//   public static List<Rower__c> getRowers() {
-//       return [SELECT Id, Name FROM Rower__c ORDER BY Name LIMIT 200];
-//   }
-
-const MOCK_ROWERS = [
-    { id: 'mock-001', name: 'Alice Martin' },
-    { id: 'mock-002', name: 'Bob Dupont' },
-    { id: 'mock-003', name: 'Claire Lefebvre' },
-    { id: 'mock-004', name: 'David Moreau' },
-    { id: 'mock-005', name: 'Emma Bernard' },
-    { id: 'mock-006', name: 'François Petit' },
-    { id: 'mock-007', name: 'Grace Leroy' },
-    { id: 'mock-008', name: 'Hugo Simon' },
-];
 
 export default class RowingBookingScreen extends LightningElement {
 
     // ─── Reactive state ──────────────────────────────────────────────────────
 
     @track boats = [];
+    @track rowers = [];
     @track selectedSessionType = 'Morning';
     @track selectedCapacity = null;       // null = All
     @track isLoading = false;
@@ -116,6 +99,13 @@ export default class RowingBookingScreen extends LightningElement {
 
     connectedCallback() {
         this.loadBoats();
+        getRowers()
+            .then(result => {
+                this.rowers = (result || []).filter(r =>
+                    !this.currentRower || r.Id !== this.currentRower.Id
+                );
+            })
+            .catch(error => console.error('Error loading rowers:', error));
     }
 
     loadBoats() {
@@ -186,9 +176,14 @@ export default class RowingBookingScreen extends LightningElement {
         if (!this.crewSearchTerm) return [];
         const term = this.crewSearchTerm.toLowerCase();
         const alreadySelectedIds = new Set(this.crew.map(m => m.id));
-        return MOCK_ROWERS.filter(r =>
-            r.name.toLowerCase().includes(term) && !alreadySelectedIds.has(r.id)
-        );
+        return this.rowers
+            .map(r => ({
+                id: r.Id,
+                name: r.User__r ? r.User__r.Name : r.Id,
+            }))
+            .filter(r =>
+                r.name.toLowerCase().includes(term) && !alreadySelectedIds.has(r.id)
+            );
     }
 
     handleCrewSearch(event) {
@@ -244,6 +239,10 @@ export default class RowingBookingScreen extends LightningElement {
     }
 
     // ─── Active session helpers ───────────────────────────────────────────────
+
+    get hasActiveSession() {
+        return this.activeSession !== null && this.activeSession !== undefined;
+    }
 
     get isSessionBooked() {
         return this.activeSession && this.activeSession.status === 'Booked';
@@ -320,13 +319,19 @@ export default class RowingBookingScreen extends LightningElement {
         this.isLoading = true;
         const { sessionId, boatId } = this.activeSession;
 
-        const reportAndEnd = () =>
+        const doEndSession = () =>
             endSession({ sessionId })
                 .then(() => {
                     this.activeSession = null;
                     this.showIssueForm = false;
                     this.showToast('Session ended', 'Your session has been completed. Well rowed!', 'success');
                     this.loadBoats();
+                })
+                .catch(error => {
+                    this.showToast('Error ending session', this.extractError(error), 'error');
+                })
+                .finally(() => {
+                    this.isLoading = false;
                 });
 
         if (this.selectedIssueTypes.length > 0) {
@@ -337,19 +342,13 @@ export default class RowingBookingScreen extends LightningElement {
                 description: this.issueDescription,
                 severity: this.issueSeverity,
             })
-                .then(() => reportAndEnd())
+                .then(() => doEndSession())
                 .catch(error => {
                     this.showToast('Error reporting issue', this.extractError(error), 'error');
                     this.isLoading = false;
                 });
         } else {
-            reportAndEnd()
-                .catch(error => {
-                    this.showToast('Error ending session', this.extractError(error), 'error');
-                })
-                .finally(() => {
-                    this.isLoading = false;
-                });
+            doEndSession();
         }
     }
 

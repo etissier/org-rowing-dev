@@ -1,6 +1,6 @@
 public with sharing class RowingSessionController {
 
-    @AuraEnabled(cacheable=true)
+    @AuraEnabled
     public static List<Boat__c> getAvailableBoats(String sessionType, Date sessionDate, Integer capacity) {
         List<Boat__c> boats;
 
@@ -161,6 +161,11 @@ public with sharing class RowingSessionController {
             Database.rollback(sp);
             throw new AuraHandledException(e.getMessage());
         }
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static List<Rower__c> getRowers() {
+        return [SELECT Id, User__c, User__r.Name, Group__c FROM Rower__c ORDER BY User__r.Name];
     }
 
     @AuraEnabled(cacheable=true)
