@@ -1,0 +1,253 @@
+<template>
+    <lightning-card title="Fleet Dashboard" icon-name="standard:record">
+
+        <!-- Loading Spinner -->
+        <template lwc:if={isLoading}>
+            <div class="slds-var-m-around_medium slds-align_absolute-center">
+                <lightning-spinner alternative-text="Loading fleet data..." size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <div class="slds-var-m-around_medium">
+
+            <!-- ── Date Navigation ──────────────────────────────────────────── -->
+            <div class="slds-grid slds-grid_vertical-align-center slds-var-m-bottom_medium date-nav">
+                <div class="slds-col slds-no-flex">
+                    <lightning-button-group>
+                        <lightning-button
+                            label="←"
+                            title="Previous day"
+                            variant="neutral"
+                            onclick={handlePrevDay}>
+                        </lightning-button>
+                        <lightning-button
+                            label="Today"
+                            variant="neutral"
+                            disabled={isToday}
+                            onclick={handleToday}>
+                        </lightning-button>
+                        <lightning-button
+                            label="→"
+                            title="Next day"
+                            variant="neutral"
+                            disabled={isToday}
+                            onclick={handleNextDay}>
+                        </lightning-button>
+                    </lightning-button-group>
+                </div>
+                <div class="slds-col slds-var-m-left_small">
+                    <span class="slds-text-heading_small date-display">
+                        <lightning-icon icon-name="utility:date_input" size="x-small" class="slds-var-m-right_x-small"></lightning-icon>
+                        {selectedDateFormatted}
+                    </span>
+                </div>
+            </div>
+
+            <!-- ── Session Filter Tabs ───────────────────────────────────────── -->
+            <div class="slds-var-m-bottom_medium">
+                <lightning-button-group>
+                    <lightning-button
+                        label="Morning"
+                        variant={morningVariant}
+                        data-value="Morning"
+                        onclick={handleSessionTypeChange}>
+                    </lightning-button>
+                    <lightning-button
+                        label="Afternoon"
+                        variant={afternoonVariant}
+                        data-value="Afternoon"
+                        onclick={handleSessionTypeChange}>
+                    </lightning-button>
+                    <lightning-button
+                        label="All Day"
+                        variant={allDayVariant}
+                        data-value="All Day"
+                        onclick={handleSessionTypeChange}>
+                    </lightning-button>
+                </lightning-button-group>
+            </div>
+
+            <!-- ── Summary Bar + Table (shown once loading is done) ──────────── -->
+            <template lwc:if={showContent}>
+
+                <div class="slds-grid slds-gutters slds-var-m-bottom_medium summary-bar">
+                    <div class={tileClassAvailable} data-filter="Available" onclick={handleMetricClick}>
+                        <p class="slds-text-heading_medium">{countAvailable}</p>
+                        <p class="slds-text-body_small">Available</p>
+                    </div>
+                    <div class={tileClassInUse} data-filter="In Use" onclick={handleMetricClick}>
+                        <p class="slds-text-heading_medium">{countInUse}</p>
+                        <p class="slds-text-body_small">In Use</p>
+                    </div>
+                    <div class={tileClassUnderRepair} data-filter="Under Repair" onclick={handleMetricClick}>
+                        <p class="slds-text-heading_medium">{countUnderRepair}</p>
+                        <p class="slds-text-body_small">Under Repair</p>
+                    </div>
+                    <div class={tileClassOpenIssues} data-filter="Open Issues" onclick={handleMetricClick}>
+                        <p class="slds-text-heading_medium">{countOpenIssues}</p>
+                        <p class="slds-text-body_small">Open Issues</p>
+                    </div>
+                </div>
+
+                <!-- ── Error State ─────────────────────────────────────────── -->
+                <template lwc:if={error}>
+                    <div class="slds-box slds-theme_error slds-var-m-bottom_medium">
+                        <p>{error}</p>
+                    </div>
+                </template>
+
+                <!-- ── Fleet Table ─────────────────────────────────────────── -->
+                <template lwc:if={hasFleetData}>
+                    <div class="table-container">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout">
+                            <thead>
+                                <tr class="slds-line-height_reset">
+                                    <th scope="col" class="slds-text-title_caps sortable-header" data-col="name" onclick={handleSortClick}>
+                                        Boat Name {sortIndicator.name}
+                                    </th>
+                                    <th scope="col" class="slds-text-title_caps sortable-header" data-col="status" onclick={handleSortClick}>
+                                        Status {sortIndicator.status}
+                                    </th>
+                                    <th scope="col" class="slds-text-title_caps sortable-header" data-col="capacity" onclick={handleSortClick}>
+                                        Capacity {sortIndicator.capacity}
+                                    </th>
+                                    <th scope="col" class="slds-text-title_caps slds-text-align_center sortable-header" data-col="cox" onclick={handleSortClick}>
+                                        Cox {sortIndicator.cox}
+                                    </th>
+                                    <th scope="col" class="slds-text-title_caps sortable-header" data-col="type" onclick={handleSortClick}>
+                                        Type {sortIndicator.type}
+                                    </th>
+                                    <th scope="col" class="slds-text-title_caps sortable-header" data-col="session" onclick={handleSortClick}>
+                                        Session Slot {sortIndicator.session}
+                                    </th>
+                                    <th scope="col" class="slds-text-title_caps">Crew</th>
+                                    <th scope="col" class="slds-text-title_caps slds-text-align_center sortable-header" data-col="issues" onclick={handleSortClick}>
+                                        Issues {sortIndicator.issues}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={filteredFleetData} for:item="item">
+                                    <!-- Main data row -->
+                                    <tr key={item.boat.Id}
+                                        class={item.rowClass}
+                                        onclick={handleRowClick}
+                                        data-boat-id={item.boat.Id}>
+                                        <td data-label="Boat Name">
+                                            <span class="slds-truncate">{item.boat.Name}</span>
+                                        </td>
+                                        <td data-label="Status">
+                                            <lightning-badge label={item.boat.Status__c} class={item.statusBadgeClass}></lightning-badge>
+                                        </td>
+                                        <td data-label="Capacity">
+                                            <lightning-badge label={item.displayCapacity}></lightning-badge>
+                                        </td>
+                                        <td data-label="Cox" class="slds-text-align_center">
+                                            <template lwc:if={item.boat.Has_Cox__c}>
+                                                <lightning-badge label="Cox" class="badge-cox"></lightning-badge>
+                                            </template>
+                                        </td>
+                                        <td data-label="Type">
+                                            <lightning-badge label={item.rowingStyle} class={item.rowingStyleClass}></lightning-badge>
+                                        </td>
+                                        <td data-label="Session Slot">
+                                            <template lwc:if={item.isAvailable}>
+                                                <span class="slds-text-color_weak">—</span>
+                                            </template>
+                                            <template lwc:else>
+                                                <span class="slds-truncate">{item.sessionSlot}</span>
+                                            </template>
+                                        </td>
+                                        <td data-label="Crew">
+                                            <span class="slds-truncate">{item.crewDisplay}</span>
+                                        </td>
+                                        <td data-label="Issues" class="slds-text-align_center" onclick={handleStopPropagation}>
+                                            <template lwc:if={item.hasIssues}>
+                                                <lightning-badge label={item.openIssueCount} class="badge-issue-red"></lightning-badge>
+                                            </template>
+                                            <template lwc:else>
+                                                <span class="slds-text-color_success">—</span>
+                                            </template>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Expanded detail row -->
+                                    <template lwc:if={item.isExpanded}>
+                                        <tr key={item.detailRowKey} class="detail-row">
+                                            <td colspan="8" class="slds-var-p-around_medium detail-cell">
+                                                <div class="slds-grid slds-gutters">
+
+                                                    <!-- Crew list -->
+                                                    <div class="slds-col">
+                                                        <h4 class="slds-text-title_caps slds-var-m-bottom_x-small">Full Crew</h4>
+                                                        <template lwc:if={item.hasCrewNames}>
+                                                            <ul class="slds-list_dotted">
+                                                                <template for:each={item.enrichedCrew} for:item="member">
+                                                                    <li key={member.key}>{member.name}</li>
+                                                                </template>
+                                                            </ul>
+                                                        </template>
+                                                        <template lwc:else>
+                                                            <p class="slds-text-color_weak">No crew assigned</p>
+                                                        </template>
+                                                    </div>
+
+                                                    <!-- Session details -->
+                                                    <div class="slds-col">
+                                                        <h4 class="slds-text-title_caps slds-var-m-bottom_x-small">Session Details</h4>
+                                                        <template lwc:if={item.session}>
+                                                            <p><strong>Type:</strong> {item.session.Session_Type__c}</p>
+                                                            <p><strong>Start:</strong> {item.sessionStartFormatted}</p>
+                                                            <p><strong>End:</strong> {item.sessionEndFormatted}</p>
+                                                            <p><strong>Status:</strong> {item.session.Status__c}</p>
+                                                        </template>
+                                                        <template lwc:else>
+                                                            <p class="slds-text-color_weak">No session scheduled</p>
+                                                        </template>
+                                                    </div>
+
+                                                    <!-- Open issues -->
+                                                    <div class="slds-col">
+                                                        <h4 class="slds-text-title_caps slds-var-m-bottom_x-small">Open Issues</h4>
+                                                        <template lwc:if={item.hasIssues}>
+                                                            <template for:each={item.enrichedIssues} for:item="issue">
+                                                                <div key={issue.Id} class="slds-var-m-top_x-small">
+                                                                    <span class={issue.severityBadgeClass}>{issue.Severity__c}</span>
+                                                                    <span class="slds-var-m-left_x-small">{issue.Issue_Type__c}</span>
+                                                                    <template lwc:if={issue.Description__c}>
+                                                                        <span class="slds-var-m-left_x-small slds-text-color_weak"> — {issue.Description__c}</span>
+                                                                    </template>
+                                                                </div>
+                                                            </template>
+                                                        </template>
+                                                        <template lwc:else>
+                                                            <p class="slds-text-color_success">No open issues</p>
+                                                        </template>
+                                                    </div>
+
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </template>
+
+                <!-- ── Empty State ─────────────────────────────────────────── -->
+                <template lwc:if={showEmptyState}>
+                    <div class="slds-illustration slds-illustration_small slds-var-m-top_large empty-state">
+                        <div class="slds-text-longform slds-text-align_center">
+                            <lightning-icon icon-name="standard:record" size="large" class="slds-var-m-bottom_small"></lightning-icon>
+                            <p class="slds-text-heading_medium">No fleet data</p>
+                            <p class="slds-text-body_regular">No boats found for the selected date and session filter.</p>
+                        </div>
+                    </div>
+                </template>
+
+            </template>
+
+        </div>
+    </lightning-card>
+</template>

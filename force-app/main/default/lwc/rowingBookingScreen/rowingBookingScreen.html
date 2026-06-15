@@ -1,0 +1,277 @@
+<template>
+    <lightning-card title="Book a Boat" icon-name="utility:rowing">
+        <!-- Card header action button -->
+        <lightning-button
+            slot="actions"
+            label="Book a Boat"
+            variant="brand"
+            icon-name="utility:add"
+            onclick={handleBookABoatClick}
+            disabled={bookABoatDisabled}>
+        </lightning-button>
+
+        <!-- Active Session Panel -->
+        <template lwc:if={activeSession}>
+            <div class="slds-var-m-around_medium active-session-panel">
+                <div class="slds-box slds-var-m-bottom_medium">
+                    <div class="slds-grid slds-grid_vertical-align-center slds-var-m-bottom_small">
+                        <div class="slds-col">
+                            <h3 class="slds-text-heading_small">
+                                <lightning-icon icon-name="utility:rowing" size="x-small" class="slds-var-m-right_x-small"></lightning-icon>
+                                {activeSessionHeading}
+                            </h3>
+                        </div>
+                        <div class="slds-col slds-no-flex">
+                            <lightning-badge label={activeSessionStatusLabel} class={activeSessionStatusClass}></lightning-badge>
+                        </div>
+                    </div>
+
+                    <div class="slds-grid slds-gutters slds-var-m-bottom_medium">
+                        <div class="slds-col">
+                            <p class="slds-text-body_small slds-text-color_weak">Boat</p>
+                            <p class="slds-text-body_regular"><strong>{activeSession.boatName}</strong></p>
+                        </div>
+                        <div class="slds-col">
+                            <p class="slds-text-body_small slds-text-color_weak">Session</p>
+                            <p class="slds-text-body_regular">{activeSession.sessionType}</p>
+                        </div>
+                        <div class="slds-col">
+                            <p class="slds-text-body_small slds-text-color_weak">Date</p>
+                            <p class="slds-text-body_regular">{todayFormatted}</p>
+                        </div>
+                    </div>
+
+                    <lightning-button
+                        label="End Session"
+                        variant="destructive"
+                        onclick={handleEndSession}
+                        disabled={isLoading}>
+                    </lightning-button>
+                </div>
+            </div>
+        </template>
+
+        <!-- Main Booking View -->
+        <div class="slds-var-m-around_medium">
+
+            <!-- Today's Date -->
+            <p class="slds-text-body_small slds-var-m-bottom_medium date-label">
+                <lightning-icon icon-name="utility:date_input" size="x-small" class="slds-var-m-right_x-small"></lightning-icon>
+                {todayFormatted}
+            </p>
+
+            <!-- Session Type Toggle -->
+            <div class="slds-var-m-bottom_medium">
+                <label class="slds-form-element__label slds-var-m-bottom_x-small">Session</label>
+                <lightning-button-group>
+                    <lightning-button
+                        label="Morning"
+                        variant={morningVariant}
+                        onclick={handleSessionTypeChange}
+                        data-value="Morning">
+                    </lightning-button>
+                    <lightning-button
+                        label="Afternoon"
+                        variant={afternoonVariant}
+                        onclick={handleSessionTypeChange}
+                        data-value="Afternoon">
+                    </lightning-button>
+                </lightning-button-group>
+            </div>
+
+            <!-- Capacity Filter -->
+            <div class="slds-var-m-bottom_medium">
+                <label class="slds-form-element__label slds-var-m-bottom_x-small">Capacity</label>
+                <div class="slds-grid slds-wrap slds-gutters_x-small capacity-filters">
+                    <template for:each={capacityOptions} for:item="cap">
+                        <button
+                            key={cap.value}
+                            class={cap.cssClass}
+                            onclick={handleCapacityChange}
+                            data-value={cap.value}>
+                            {cap.label}
+                        </button>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Loading spinner -->
+            <template lwc:if={isLoading}>
+                <lightning-spinner alternative-text="Loading boats..." size="small"></lightning-spinner>
+            </template>
+
+            <!-- Boat List -->
+            <template lwc:if={showBoatList}>
+                <div class="boat-list">
+                    <template for:each={boats} for:item="boat">
+                        <div key={boat.Id} class="slds-box slds-var-m-bottom_small boat-row">
+                            <div class="slds-grid slds-gutters slds-grid_vertical-align-center">
+                                <div class="slds-col">
+                                    <p class="slds-var-m-bottom_xx-small">{boat.Name}</p>
+                                    <div class="slds-grid slds-grid_vertical-align-center" style="gap:0.4rem">
+                                        <lightning-badge label={boat.displayCapacity}></lightning-badge>
+                                        <template lwc:if={boat.Has_Cox__c}>
+                                            <lightning-badge label="Cox" class="badge-cox"></lightning-badge>
+                                        </template>
+                                        <lightning-badge label={boat.rowingStyle} class={boat.rowingStyleClass}></lightning-badge>
+                                    </div>
+                                </div>
+                                <div class="slds-col slds-no-flex">
+                                    <lightning-button
+                                        label="Book"
+                                        variant="brand"
+                                        onclick={handleBookClick}
+                                        data-boat-id={boat.Id}
+                                        data-boat-name={boat.Name}
+                                        data-boat-capacity={boat.Capacity__c}>
+                                    </lightning-button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <!-- Empty state -->
+            <template lwc:if={showEmptyState}>
+                <div class="slds-illustration slds-illustration_small slds-var-m-top_medium empty-state">
+                    <div class="slds-text-longform slds-text-align_center">
+                        <lightning-icon icon-name="utility:boat" size="large" class="slds-var-m-bottom_small"></lightning-icon>
+                        <p class="slds-text-heading_medium">No boats available</p>
+                        <p class="slds-text-body_regular">
+                            There are no boats available for this session.
+                            Try a different session type or capacity filter.
+                        </p>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- Booking Modal -->
+        <template lwc:if={showModal}>
+            <div class="slds-is-fixed modal-backdrop" onclick={handleModalBackdropClick}></div>
+            <div class="slds-is-fixed slds-grid slds-grid_align-center slds-grid_vertical-align-center modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
+                <div class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container">
+
+                        <!-- Modal Header -->
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                                    onclick={handleCloseModal}
+                                    title="Close">
+                                <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                            </button>
+                            <h2 id="modal-heading" class="slds-modal__title">
+                                Book: {selectedBoat.name}
+                            </h2>
+                        </header>
+
+                        <!-- Modal Body -->
+                        <div class="slds-modal__content slds-var-p-around_medium">
+
+                            <!-- Booking summary -->
+                            <div class="slds-box slds-theme_shade slds-var-m-bottom_medium">
+                                <p><strong>Session:</strong> {selectedSessionType}</p>
+                                <p><strong>Date:</strong> {todayFormatted}</p>
+                                <p><strong>Capacity:</strong> {selectedBoat.capacity} seats</p>
+                            </div>
+
+                            <!-- Crew Picker -->
+                            <div class="slds-var-m-bottom_medium">
+                                <div class="slds-grid slds-grid_vertical-align-center slds-var-m-bottom_x-small">
+                                    <div class="slds-col">
+                                        <label class="slds-form-element__label slds-m-bottom_none">Add Crew Members</label>
+                                    </div>
+                                    <div class="slds-col slds-no-flex">
+                                        <span class="slds-show_inline-block slds-text-body_small seats-badge">{seatsUsed} / {selectedBoat.capacity} seats filled</span>
+                                    </div>
+                                </div>
+
+                                <!-- Crew search input -->
+                                <div class="slds-form-element slds-var-m-top_x-small slds-var-m-bottom_small">
+                                    <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_right">
+                                        <lightning-input
+                                            type="search"
+                                            label="Search rowers"
+                                            variant="label-hidden"
+                                            placeholder="Type a name to search..."
+                                            value={crewSearchTerm}
+                                            onchange={handleCrewSearch}
+                                            disabled={isCrewFull}>
+                                        </lightning-input>
+                                    </div>
+                                </div>
+
+                                <!-- Search results dropdown -->
+                                <template lwc:if={showCrewSearchResults}>
+                                    <div class="slds-is-relative crew-search-results slds-dropdown slds-dropdown_length-5 slds-dropdown_fluid">
+                                        <ul class="slds-listbox slds-listbox_vertical" role="listbox">
+                                            <template for:each={filteredRowers} for:item="rower">
+                                                <li key={rower.id}
+                                                    class="slds-media slds-listbox__item slds-listbox__option slds-listbox__option_plain"
+                                                    role="option"
+                                                    onclick={handleSelectCrewMember}
+                                                    data-rower-id={rower.id}
+                                                    data-rower-name={rower.name}>
+                                                    <span class="slds-media__body">
+                                                        <span class="slds-truncate">{rower.name}</span>
+                                                    </span>
+                                                </li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                </template>
+
+                                <!-- Selected crew pills -->
+                                <template lwc:if={hasCrew}>
+                                    <div class="slds-pill_container slds-var-m-top_x-small">
+                                        <div class="slds-grid slds-wrap" role="list">
+                                            <template for:each={crew} for:item="member">
+                                                <span key={member.id} class="slds-pill slds-var-m-right_x-small slds-var-m-bottom_x-small" role="listitem">
+                                                    <span class="slds-pill__label">{member.name}</span>
+                                                    <button
+                                                        class="slds-button slds-button_icon slds-button_icon slds-pill__remove"
+                                                        onclick={handleRemoveCrewMember}
+                                                        data-rower-id={member.id}
+                                                        title="Remove">
+                                                        <lightning-icon icon-name="utility:close" size="xx-small"></lightning-icon>
+                                                    </button>
+                                                </span>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <template lwc:if={isCrewFull}>
+                                    <p class="slds-text-color_success slds-var-m-top_x-small">
+                                        <lightning-icon icon-name="utility:check" size="xx-small"></lightning-icon>
+                                        Crew is full ({crew.length}/{maxCrewSize})
+                                    </p>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Modal Footer -->
+                        <footer class="slds-modal__footer">
+                            <lightning-button
+                                label="Cancel"
+                                variant="neutral"
+                                onclick={handleCloseModal}
+                                disabled={isLoading}
+                                class="slds-var-m-right_small">
+                            </lightning-button>
+                            <lightning-button
+                                label="Confirm Booking"
+                                variant="brand"
+                                onclick={handleConfirmBooking}
+                                disabled={isLoading}>
+                            </lightning-button>
+                        </footer>
+
+                    </div>
+                </div>
+            </div>
+        </template>
+
+    </lightning-card>
+</template>

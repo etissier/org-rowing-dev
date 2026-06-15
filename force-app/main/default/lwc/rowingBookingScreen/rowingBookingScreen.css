@@ -1,0 +1,139 @@
+/* ─── Date label ─────────────────────────────────────────────────────────── */
+.date-label {
+    color: var(--slds-g-color-neutral-base-50, #747474);
+    font-style: italic;
+}
+
+/* ─── Capacity filter buttons ────────────────────────────────────────────── */
+.capacity-btn {
+    padding: 0.25rem 0.75rem;
+    border: 1px solid var(--slds-g-color-brand-base-40, #0176d3);
+    border-radius: 0.25rem;
+    background: var(--lwc-colorBackgroundAlt, #fff);
+    color: var(--slds-g-color-brand-base-40, #0176d3);
+    font-size: 0.8125rem;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.capacity-btn:hover {
+    background: var(--slds-g-color-brand-base-95, #eef4ff);
+}
+
+.capacity-btn_active {
+    background: var(--slds-g-color-brand-base-40, #0176d3);
+    color: var(--lwc-colorTextInverse, #fff);
+}
+
+/* ─── Boat list ──────────────────────────────────────────────────────────── */
+.boat-row {
+    transition: box-shadow 0.15s;
+}
+
+.boat-row:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* ─── Rowing style badges ────────────────────────────────────────────────── */
+.badge-skiff {
+    --slds-c-badge-color-background: #fde8c8;
+    --slds-c-badge-text-color: #5f3e00;
+    color: #5f3e00;
+    background-color: #fde8c8;
+}
+
+.badge-cox {
+    --slds-c-badge-color-background: #1a1a1a;
+    --slds-c-badge-text-color: #ffffff;
+    color: #ffffff;
+    background-color: #1a1a1a;
+}
+
+
+.badge-pointe {
+    --slds-c-badge-color-background: #cdefc4;
+    --slds-c-badge-text-color: #1a5c2a;
+    color: #1a5c2a;
+    background-color: #cdefc4;
+}
+
+.badge-couple {
+    --slds-c-badge-color-background: #cfe9fe;
+    --slds-c-badge-text-color: #032d60;
+    color: #032d60;
+    background-color: #cfe9fe;
+}
+
+/* ─── Active session panel ───────────────────────────────────────────────── */
+.active-session-panel {
+    border-left: 4px solid var(--slds-g-color-success-base-40, #2e844a);
+}
+
+.session-badge-inprogress {
+    --slds-c-badge-color-background: #cdefc4;
+    --slds-c-badge-text-color: #1a5c2a;
+    color: #1a5c2a;
+    background-color: #cdefc4;
+}
+
+.session-badge-booked {
+    --slds-c-badge-color-background: #cfe9fe;
+    --slds-c-badge-text-color: #032d60;
+    color: #032d60;
+    background-color: #cfe9fe;
+}
+
+/* ─── Issue report form ──────────────────────────────────────────────────── */
+.issue-form {
+    border-left: 4px solid var(--slds-g-color-error-base-40, #ba0517);
+}
+
+/* ─── Booking modal overlay ──────────────────────────────────────────────── */
+.modal-backdrop {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9000;
+}
+
+.modal-container {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9001;
+    pointer-events: none;
+}
+
+.modal-container .slds-modal {
+    pointer-events: all;
+}
+
+/* ─── Seats-filled badge in booking modal ───────────────────────────────── */
+.seats-badge {
+    padding: 0.125rem 0.625rem;
+    border-radius: var(--lwc-varSpacingMedium, 1rem);
+    background: var(--slds-g-color-brand-base-95, #eef4ff);
+    border: 1px solid var(--slds-g-color-brand-base-70, #9ec5f2);
+    color: var(--slds-g-color-brand-base-30, #014486);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ─── Crew search results dropdown ───────────────────────────────────────── */
+.crew-search-results {
+    z-index: 100;
+    border: 1px solid var(--slds-g-color-neutral-base-80, #c9c9c9);
+    border-radius: 0.25rem;
+    background: var(--lwc-colorBackgroundAlt, #fff);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.crew-search-results .slds-listbox__option:hover {
+    background: var(--slds-g-color-brand-base-95, #eef4ff);
+    cursor: pointer;
+}

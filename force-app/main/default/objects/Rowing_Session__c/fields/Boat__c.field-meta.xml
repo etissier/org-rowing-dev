@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Boat__c</fullName>
+    <label>Boat</label>
+    <referenceTo>Boat__c</referenceTo>
+    <relationshipLabel>Rowing Sessions</relationshipLabel>
+    <relationshipName>Rowing_Sessions</relationshipName>
+    <required>false</required>
+    <type>Lookup</type>
+</CustomField>
