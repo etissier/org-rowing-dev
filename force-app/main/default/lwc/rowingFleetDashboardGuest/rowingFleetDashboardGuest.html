@@ -38,11 +38,14 @@
 
             <!-- Error Message -->
             <template if:true={error}>
-                <div class="slds-m-top_medium">
+                <div class="slds-var-m-top_medium">
                     <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
                         <span class="slds-assistive-text">Error</span>
                         <h2>Error loading fleet status</h2>
                         <p>{error.body.message}</p>
+                        <p class="slds-text-body_small slds-var-m-top_x-small">
+                            Check the browser console (F12) for detailed error information.
+                        </p>
                     </div>
                 </div>
             </template>

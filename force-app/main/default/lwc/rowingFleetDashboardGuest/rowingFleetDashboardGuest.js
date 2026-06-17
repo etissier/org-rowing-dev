@@ -33,11 +33,20 @@ export default class RowingFleetDashboardGuest extends LightningElement {
         this.isLoading = true;
         this.error = undefined;
 
+        // Convert JS date string to Salesforce Date format (YYYY-MM-DD)
+        const dateParam = this.selectedDate;
+
+        console.log('Calling getFleetStatus with:', {
+            selectedDate: dateParam,
+            sessionType: this.selectedSessionType
+        });
+
         getFleetStatus({
-            selectedDate: this.selectedDate,
+            selectedDate: dateParam,
             sessionType: this.selectedSessionType
         })
             .then(result => {
+                console.log('Success:', result);
                 this.boatStatuses = result.map(bs => ({
                     ...bs,
                     id: bs.boat.Id,
@@ -52,7 +61,14 @@ export default class RowingFleetDashboardGuest extends LightningElement {
                 this.isLoading = false;
             })
             .catch(error => {
-                this.error = error;
+                console.error('Error details:', error);
+                console.error('Error message:', error.body ? error.body.message : error.message);
+                console.error('Full error:', JSON.stringify(error, null, 2));
+                this.error = {
+                    body: {
+                        message: error.body ? error.body.message : (error.message || 'Unknown error')
+                    }
+                };
                 this.boatStatuses = [];
                 this.isLoading = false;
             });
