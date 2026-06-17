@@ -2,6 +2,12 @@
 
 This guide explains how to create a public Experience Cloud site for viewing the Fleet Dashboard.
 
+## Profile Information
+
+**Guest User Profile Name**: Rowing Club Guest Portal Profile
+**Guest User Profile URL**: https://storm-b8e919cd90bffa.my.salesforce-setup.com/lightning/setup/EnhancedProfiles/page?address=%2F00eKB0000016twc
+**Profile ID**: `00eKB0000016twc`
+
 ## What's Been Created
 
 1. **FleetDashboardGuestController** - Guest-accessible Apex controller (`without sharing`)
