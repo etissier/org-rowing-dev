@@ -1,0 +1,127 @@
+<template>
+    <lightning-card title="Rowing Club Fleet Dashboard" icon-name="custom:custom19">
+        <div class="slds-card__body slds-card__body_inner">
+            <!-- Filters -->
+            <div class="slds-grid slds-gutters slds-wrap slds-m-bottom_medium">
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                    <lightning-input
+                        type="date"
+                        label="Date"
+                        value={selectedDate}
+                        onchange={handleDateChange}>
+                    </lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                    <lightning-combobox
+                        label="Session Type"
+                        value={selectedSessionType}
+                        options={sessionTypeOptions}
+                        onchange={handleSessionTypeChange}>
+                    </lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-grid slds-grid_align-end">
+                    <lightning-button
+                        label="Refresh"
+                        icon-name="utility:refresh"
+                        onclick={handleRefresh}
+                        class="slds-m-top_large">
+                    </lightning-button>
+                </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <template if:true={isLoading}>
+                <div class="slds-text-align_center slds-p-vertical_large">
+                    <lightning-spinner alternative-text="Loading"></lightning-spinner>
+                </div>
+            </template>
+
+            <!-- Error Message -->
+            <template if:true={error}>
+                <div class="slds-m-top_medium">
+                    <lightning-message variant="error" title="Error loading fleet status">
+                        {error.body.message}
+                    </lightning-message>
+                </div>
+            </template>
+
+            <!-- Fleet Status Grid -->
+            <template if:false={isLoading}>
+                <template if:true={boatStatuses}>
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <template for:each={boatStatuses} for:item="boat">
+                            <div key={boat.id} class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-3">
+                                <article class="slds-card slds-m-bottom_small">
+                                    <div class="slds-card__header slds-grid">
+                                        <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                                            <div class="slds-media__body">
+                                                <h2 class="slds-card__header-title">
+                                                    <span class="slds-text-heading_small">{boat.boat.Name}</span>
+                                                </h2>
+                                            </div>
+                                            <div class="slds-no-flex">
+                                                <span class={boat.statusClass}>{boat.statusLabel}</span>
+                                            </div>
+                                        </header>
+                                    </div>
+                                    <div class="slds-card__body slds-card__body_inner">
+                                        <dl class="slds-list_horizontal slds-wrap">
+                                            <dt class="slds-item_label slds-text-color_weak slds-truncate">Capacity:</dt>
+                                            <dd class="slds-item_detail slds-truncate">{boat.boat.Capacity__c} rowers</dd>
+
+                                            <dt class="slds-item_label slds-text-color_weak slds-truncate">Oars:</dt>
+                                            <dd class="slds-item_detail slds-truncate">{boat.boat.Number_of_Oars__c}</dd>
+
+                                            <dt class="slds-item_label slds-text-color_weak slds-truncate">Cox:</dt>
+                                            <dd class="slds-item_detail slds-truncate">
+                                                <template if:true={boat.boat.Has_Cox__c}>Yes</template>
+                                                <template if:false={boat.boat.Has_Cox__c}>No</template>
+                                            </dd>
+                                        </dl>
+
+                                        <template if:true={boat.hasSession}>
+                                            <div class="slds-m-top_small">
+                                                <p class="slds-text-body_small slds-text-color_weak">
+                                                    <lightning-icon icon-name="utility:clock" size="xx-small"></lightning-icon>
+                                                    {boat.sessionInfo}
+                                                </p>
+                                                <p class="slds-text-body_small slds-m-top_x-small">
+                                                    <lightning-icon icon-name="utility:groups" size="xx-small"></lightning-icon>
+                                                    {boat.crewList}
+                                                </p>
+                                            </div>
+                                        </template>
+
+                                        <template if:true={boat.hasIssues}>
+                                            <div class="slds-m-top_small">
+                                                <lightning-badge label={boat.openIssueCount} icon-name="utility:warning"></lightning-badge>
+                                                <span class="slds-text-body_small slds-m-left_x-small">Open Issues</span>
+                                                <template for:each={boat.openIssues} for:item="issue">
+                                                    <div key={issue.Id} class="slds-box slds-box_x-small slds-theme_error slds-m-top_x-small">
+                                                        <p class="slds-text-body_small">
+                                                            <strong>{issue.Issue_Type__c}</strong> - {issue.Severity__c}
+                                                        </p>
+                                                        <p class="slds-text-body_small">{issue.Description__c}</p>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </template>
+
+                                        <template if:true={boat.boat.Notes__c}>
+                                            <div class="slds-m-top_small">
+                                                <p class="slds-text-body_small slds-text-color_weak">
+                                                    <lightning-icon icon-name="utility:note" size="xx-small"></lightning-icon>
+                                                    {boat.boat.Notes__c}
+                                                </p>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </article>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </template>
+        </div>
+    </lightning-card>
+</template>

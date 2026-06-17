@@ -1,0 +1,11 @@
+.slds-card {
+    height: 100%;
+}
+
+.slds-item_label {
+    width: 40%;
+}
+
+.slds-item_detail {
+    width: 60%;
+}
