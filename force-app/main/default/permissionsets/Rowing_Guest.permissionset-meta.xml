@@ -61,7 +61,7 @@
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
 
-    <!-- Field Permissions for Boat__c -->
+    <!-- Field Permissions for non-required fields only -->
     <fieldPermissions>
         <editable>false</editable>
         <field>Boat__c.Capacity__c</field>
@@ -93,12 +93,7 @@
         <readable>true</readable>
     </fieldPermissions>
 
-    <!-- Field Permissions for Rowing_Session__c -->
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Rowing_Session__c.Boat__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
+    <!-- Rowing_Session__c fields - skip master-detail Boat__c -->
     <fieldPermissions>
         <editable>false</editable>
         <field>Rowing_Session__c.Booked_By__c</field>
@@ -130,24 +125,7 @@
         <readable>true</readable>
     </fieldPermissions>
 
-    <!-- Field Permissions for Session_Member__c -->
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Session_Member__c.Rower__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Session_Member__c.Session__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-
-    <!-- Field Permissions for Boat_Issue__c -->
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Boat_Issue__c.Boat__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
+    <!-- Boat_Issue__c fields - skip master-detail Boat__c, Session__c -->
     <fieldPermissions>
         <editable>false</editable>
         <field>Boat_Issue__c.Description__c</field>
@@ -170,16 +148,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Boat_Issue__c.Session__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>Boat_Issue__c.Severity__c</field>
         <readable>true</readable>
     </fieldPermissions>
 
-    <!-- Field Permissions for Rower__c -->
+    <!-- Rower__c fields - skip master-detail User__c if required -->
     <fieldPermissions>
         <editable>false</editable>
         <field>Rower__c.Group__c</field>
@@ -188,11 +161,6 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Rower__c.License_Number__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Rower__c.User__c</field>
         <readable>true</readable>
     </fieldPermissions>
 </PermissionSet>

@@ -39,9 +39,11 @@
             <!-- Error Message -->
             <template if:true={error}>
                 <div class="slds-m-top_medium">
-                    <lightning-message variant="error" title="Error loading fleet status">
-                        {error.body.message}
-                    </lightning-message>
+                    <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+                        <span class="slds-assistive-text">Error</span>
+                        <h2>Error loading fleet status</h2>
+                        <p>{error.body.message}</p>
+                    </div>
                 </div>
             </template>
 
